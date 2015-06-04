@@ -4,21 +4,29 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.demo.phucnd.tracnghiemtienganh.adapter.ExpandListAdapter;
+import com.demo.phucnd.tracnghiemtienganh.appcontroller.AppController;
 import com.demo.phucnd.tracnghiemtienganh.model.Child;
 import com.demo.phucnd.tracnghiemtienganh.model.Group;
 import com.demo.phucnd.tracnghiemtienganh.utilite.AppCfg;
+import com.demo.phucnd.tracnghiemtienganh.utilite.LruBitmapCache;
 
 import java.util.ArrayList;
 
 
 public class MainActivity extends Activity {
     private TextView textView_name;
+    private ImageView imageView_avatar;
     ArrayList<Group> expListItems = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +44,29 @@ public class MainActivity extends Activity {
         textView_name = (TextView)findViewById(R.id.textView_name);
         textView_name.setText(AppCfg.CURRENT_USER.getName());
 
+        imageView_avatar = (ImageView)findViewById(R.id.imageView_avatar);
+
+        ImageLoader imageLoader = new ImageLoader(AppController.getInstance().getRequestQueue(), new LruBitmapCache());
+        String linkAvatar = AppCfg.API_LINK_IMG + AppCfg.CURRENT_USER.getImage().replace(" ", "%20");
+        imageLoader.get(linkAvatar, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                Bitmap bitmap = imageContainer.getBitmap();
+                if(bitmap != null)
+                    imageView_avatar.setImageBitmap(imageContainer.getBitmap());
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                volleyError.printStackTrace();
+            }
+        });
+
         expandList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-                if(expListItems.get(i).getItems().get(i1).getName().equalsIgnoreCase("Đăng xuất")){
+                String cmd = expListItems.get(i).getItems().get(i1).getName();
+                if(cmd.equalsIgnoreCase("Đăng xuất")){
                     ProgressDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setTitle("Thông báo").setMessage("Bạn muốn thoát?").setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
@@ -55,6 +82,10 @@ public class MainActivity extends Activity {
                     });
                     AlertDialog dialog = builder.create();
                     dialog.show();
+                }
+                if(cmd.equalsIgnoreCase("Chỉnh sửa thông tin")){
+                    Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                    startActivity(intent);
                 }
                 return false;
             }
@@ -91,5 +122,16 @@ public class MainActivity extends Activity {
         list.add(group);
 
         return list;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AppCfg.CURRENT_USER = null;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

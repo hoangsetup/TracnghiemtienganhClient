@@ -16,6 +16,8 @@ import android.widget.ImageView;
 
 public class CircleImage extends ImageView {
 
+	private  Bitmap bitmap = null;
+
 	public CircleImage(Context context) {
 		super(context);
 	}
@@ -36,7 +38,20 @@ public class CircleImage extends ImageView {
 	}
 
 	@Override
+	public void setImageBitmap(Bitmap bm) {
+		super.setImageBitmap(bm);
+		bitmap = bm;
+	}
+
+	@Override
 	protected void onDraw(Canvas canvas) {
+
+		if(bitmap != null){
+			int w = getWidth();
+			Bitmap roundBitmap = getCroppedBitmap(bitmap, w);
+			canvas.drawBitmap(roundBitmap, 0, 0, null);
+			return;
+		}
 
 		Drawable drawable = getDrawable();
 
@@ -48,13 +63,13 @@ public class CircleImage extends ImageView {
 			return;
 		}
 		Bitmap b = ((BitmapDrawable) drawable).getBitmap();
-		Bitmap bitmap = b.copy(Config.ARGB_8888, true);
+
+		Bitmap bitmap2 = b.copy(Config.ARGB_8888, true);
 
 		int w = getWidth();
 
-		Bitmap roundBitmap = getCroppedBitmap(bitmap, w);
+		Bitmap roundBitmap = getCroppedBitmap(bitmap2, w);
 		canvas.drawBitmap(roundBitmap, 0, 0, null);
-
 	}
 
 	public static Bitmap getCroppedBitmap(Bitmap bmp, int radius) {

@@ -79,6 +79,19 @@ public class LoginActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == 111){
+            try {
+                Bundle bundle = data.getBundleExtra("data");
+                String username = bundle.getString("username");
+                String password = bundle.getString("password");
+                editText_user.setText(username);
+                editText_pass.setText(password);
+                Thread.sleep(300);
+                login(username, password);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void login(String user, String pass) {
@@ -102,6 +115,7 @@ public class LoginActivity extends Activity {
                         user.setName(obj.getString("sName"));
                         user.setNgaysinh(obj.getString("sNgaysinh"));
                         user.setSdt(obj.getString("sSdt"));
+                        user.setImage(obj.getString("image"));
                         AppCfg.CURRENT_USER = user;
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
