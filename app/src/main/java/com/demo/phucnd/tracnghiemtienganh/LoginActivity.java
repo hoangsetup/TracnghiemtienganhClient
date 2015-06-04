@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -31,6 +32,7 @@ import java.util.Map;
 public class LoginActivity extends Activity {
     Button button_login;
     EditText editText_user, editText_pass;
+    TextView textView_reg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class LoginActivity extends Activity {
         button_login = (Button) findViewById(R.id.button_login);
         editText_user = (EditText) findViewById(R.id.editText_user);
         editText_pass = (EditText) findViewById(R.id.editText_password);
+        textView_reg = (TextView)findViewById(R.id.textView_regLink);
     }
 
     private void registryEvent(){
@@ -63,6 +66,19 @@ public class LoginActivity extends Activity {
                 login(user, pass);
             }
         });
+
+        textView_reg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivityForResult(intent, 111);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void login(String user, String pass) {

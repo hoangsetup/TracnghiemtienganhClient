@@ -117,6 +117,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="12dp"
+        android:textSize="8pt"
         android:text="@string/reg"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="#44ff44"

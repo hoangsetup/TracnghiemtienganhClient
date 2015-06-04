@@ -1,127 +1,135 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="#73A0C4"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp">
-    <ImageView
-        android:id="@+id/imageView_logo"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="12dp"
-        android:src="@drawable/logo"/>
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#73A0C4"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:background="#00000000"
-        android:orientation="vertical">
-
-        <EditText
-            android:id="@+id/editText_user"
-            style="@style/styleEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_bg"
-            android:drawableLeft="@drawable/ic_email"
-            android:drawablePadding="10dp"
-            android:drawableStart="@drawable/ic_email"
-            android:hint="@string/hind_email"
-            android:minHeight="48dp"
-            android:singleLine="true"
-            android:textColor="#FFF"
-            android:typeface="serif">
-
-            <requestFocus/>
-        </EditText>
-
-        <EditText
-            android:id="@+id/editText_password"
-            style="@style/styleEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/edittext_bg"
-            android:drawableLeft="@drawable/ic_key"
-            android:drawablePadding="20dp"
-            android:drawableStart="@drawable/ic_key"
-            android:ems="10"
-            android:hint="@string/hind_password"
-            android:inputType="textPassword"
-            android:minHeight="48dp"
-            android:singleLine="true"
-            android:textColor="#FFF"
-            android:typeface="serif"/>
+        android:layout_height="wrap_content">
 
         <LinearLayout
+            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:paddingLeft="24dp"
-            android:paddingRight="24dp">
+            android:background="#00000000"
+            android:orientation="vertical">
 
-            <CheckBox
-                android:id="@+id/checkBox_keeplogin"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/editText_name"
+                style="@style/styleEditText"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="-6dp"
-                android:layout_marginStart="-6dp"
-                android:checked="false"
-                android:text="@string/str_remember_me"
+                android:background="@drawable/edittext_bg"
+                android:drawableLeft="@drawable/ic_name"
+                android:drawablePadding="10dp"
+                android:drawableStart="@drawable/ic_name"
+                android:hint="Họ và tên"
+                android:minHeight="48dp"
+                android:singleLine="true"
                 android:textColor="#FFF"
-                android:typeface="serif"
-                android:visibility="visible"/>
+                android:typeface="serif">
+
+                <requestFocus />
+            </EditText>
+
+            <EditText
+                android:id="@+id/editText_user"
+                style="@style/styleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_bg"
+                android:drawableLeft="@drawable/ic_user"
+                android:drawablePadding="10dp"
+                android:drawableStart="@drawable/ic_user"
+                android:hint="@string/hind_email"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:textColor="#FFF"
+                android:typeface="serif"/>
+
+            <EditText
+                android:id="@+id/editText_password"
+                style="@style/styleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_bg"
+                android:drawableLeft="@drawable/ic_key"
+                android:drawablePadding="20dp"
+                android:drawableStart="@drawable/ic_key"
+                android:ems="10"
+                android:hint="@string/hind_password"
+                android:inputType="textPassword"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:textColor="#FFF"
+                android:typeface="serif" />
+
+            <EditText
+                android:id="@+id/editText_email"
+                style="@style/styleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_bg"
+                android:drawableLeft="@drawable/ic_email"
+                android:drawablePadding="10dp"
+                android:drawableStart="@drawable/ic_email"
+                android:hint="Thư điện tử"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:textColor="#FFF"
+                android:typeface="serif"/>
+            <EditText
+                android:id="@+id/editText_sdt"
+                style="@style/styleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_bg"
+                android:drawableLeft="@drawable/ic_phone"
+                android:drawablePadding="10dp"
+                android:drawableStart="@drawable/ic_phone"
+                android:hint="Số điện thoại"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:textColor="#FFF"
+                android:typeface="serif"/>
+            <EditText
+                android:id="@+id/editText_ngaysinh"
+                style="@style/styleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_bg"
+                android:drawableLeft="@drawable/ic_ngaysinh"
+                android:drawablePadding="10dp"
+                android:drawableStart="@drawable/ic_ngaysinh"
+                android:hint="Ngày sinh"
+                android:minHeight="48dp"
+                android:singleLine="true"
+                android:textColor="#FFF"
+                android:typeface="serif"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="right|center_vertical"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp">
 
                 <Button
-                    android:id="@+id/button_login"
-                    android:layout_width="120dp"
+                    android:id="@+id/button_register"
+                    android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:background="@drawable/button_style"
-                    android:text="@string/str_signin"
+                    android:text="@string/str_regbtn"
                     android:textColor="#FFF"
                     android:textSize="6pt"
                     android:textStyle="italic"
-                    android:typeface="serif"/>
+                    android:typeface="serif" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/textView_signin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_horizontal"
-        android:text="@string/str_sign_in_to_your_account"
-        android:textColor="#FFF"
-        android:textSize="12pt"
-        android:textStyle="bold"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/textView_regLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="12dp"
-        android:text="@string/reg"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#44ff44"
-        android:textStyle="italic"/>
-
-
-
+    </ScrollView>
 </RelativeLayout>

@@ -7,6 +7,7 @@
     <string name="hind_password">Mật khẩu</string>
     <string name="str_remember_me">Ghi nhớ  tài khoản</string>
     <string name="str_signin">Đăng nhập</string>
+    <string name="str_regbtn">Hoàn thành</string>
     <string name="str_sign_in_to_your_account">Chào mừng đến với Tiếng Anh Q</string>
     <string name="reg">Đăng ký tài khoản mới</string>
 </resources>
