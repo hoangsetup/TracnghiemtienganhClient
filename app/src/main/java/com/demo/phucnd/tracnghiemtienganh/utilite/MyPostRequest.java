@@ -37,7 +37,7 @@ public class MyPostRequest extends Request<JSONObject> {
 	protected Map<String, String> getParams()
 			throws com.android.volley.AuthFailureError {
 		return params;
-	};
+	}
 
 	@Override
 	protected void deliverResponse(JSONObject response) {

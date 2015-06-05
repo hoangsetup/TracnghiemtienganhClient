@@ -12,22 +12,38 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.demo.phucnd.tracnghiemtienganh.adapter.ExpandListAdapter;
 import com.demo.phucnd.tracnghiemtienganh.appcontroller.AppController;
 import com.demo.phucnd.tracnghiemtienganh.model.Child;
 import com.demo.phucnd.tracnghiemtienganh.model.Group;
+import com.demo.phucnd.tracnghiemtienganh.model.Loaicauhoi;
 import com.demo.phucnd.tracnghiemtienganh.utilite.AppCfg;
 import com.demo.phucnd.tracnghiemtienganh.utilite.LruBitmapCache;
+import com.demo.phucnd.tracnghiemtienganh.utilite.MyPostRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends Activity {
     private TextView textView_name;
     private ImageView imageView_avatar;
     ArrayList<Group> expListItems = new ArrayList<>();
+
+    ExpandListAdapter expAdapter = null;
+    ProgressDialog dialog;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +54,7 @@ public class MainActivity extends Activity {
     private void setUpActivity(){
         ExpandableListView expandList = (ExpandableListView) findViewById(R.id.expandableListView_info);
         expListItems = SetStandardGroups();
-        ExpandListAdapter expAdapter = new ExpandListAdapter(MainActivity.this, expListItems);
+        expAdapter = new ExpandListAdapter(MainActivity.this, expListItems);
         expandList.setAdapter(expAdapter);
 
         textView_name = (TextView)findViewById(R.id.textView_name);
@@ -52,7 +68,7 @@ public class MainActivity extends Activity {
             @Override
             public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                 Bitmap bitmap = imageContainer.getBitmap();
-                if(bitmap != null)
+                if (bitmap != null)
                     imageView_avatar.setImageBitmap(imageContainer.getBitmap());
             }
 
@@ -66,7 +82,7 @@ public class MainActivity extends Activity {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
                 String cmd = expListItems.get(i).getItems().get(i1).getName();
-                if(cmd.equalsIgnoreCase("Đăng xuất")){
+                if (cmd.equalsIgnoreCase("Đăng xuất")) {
                     ProgressDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setTitle("Thông báo").setMessage("Bạn muốn thoát?").setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
@@ -83,13 +99,20 @@ public class MainActivity extends Activity {
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }
-                if(cmd.equalsIgnoreCase("Chỉnh sửa thông tin")){
+                if (cmd.equalsIgnoreCase("Chỉnh sửa thông tin")) {
                     Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                    startActivity(intent);
+                }
+                if (i == 1) {
+                    Intent intent = new Intent(MainActivity.this, TestDoingActivity.class);
+                    intent.putExtra("loaicauhoi", AppCfg.LOAICAUHOI.get(i1).getId());
                     startActivity(intent);
                 }
                 return false;
             }
         });
+
+        getLoaicauhoi();
     }
 
     public ArrayList<Group> SetStandardGroups() {
@@ -108,9 +131,11 @@ public class MainActivity extends Activity {
         group = new Group();
         group.setName("Làm bài thi thử");
         ArrayList<Child> childrens2 = new ArrayList<>();
-        childrens2.add(new Child("http://hiworld.com.vn", R.drawable.ic_internet));
-        childrens2.add(new Child("01676 322 963", R.drawable.ic_phone));
-        childrens2.add(new Child("hoang.dv@outlook.com", R.drawable.ic_email));
+        if(AppCfg.LOAICAUHOI.size() > 0){
+            for (Loaicauhoi loaicauhoi : AppCfg.LOAICAUHOI){
+                childrens2.add(new Child(loaicauhoi.getTenloai(), R.drawable.ic_question));
+            }
+        }
         group.setItems(childrens2);
         list.add(group);
 
@@ -124,10 +149,56 @@ public class MainActivity extends Activity {
         return list;
     }
 
+    public void getLoaicauhoi(){
+        dialog = ProgressDialog.show(this, "Thông báo", "Đang tải...", true, true);
+        MyPostRequest request = new MyPostRequest(Request.Method.POST, AppCfg.API_GETLOAICAUHOI, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                dialog.dismiss();
+                try {
+                    int success = jsonObject.getInt("success");
+                    String message = jsonObject.getString("message");
+                    if(success == 1){
+                        JSONArray array = jsonObject.getJSONArray("loaicauhoi");
+                        for (int i = 0; i < jsonObject.length(); i++){
+                            JSONObject object = array.getJSONObject(i);
+                            Loaicauhoi loaicauhoi = new Loaicauhoi();
+                            loaicauhoi.setId(object.getInt("id"));
+                            loaicauhoi.setTenloai(object.getString("tenloai"));
+                            AppCfg.LOAICAUHOI.add(loaicauhoi);
+                        }
+                        expListItems.clear();
+                        expListItems.addAll(SetStandardGroups());
+                        expAdapter.notifyDataSetChanged();
+                    }else{
+                        AppCfg.showToast(MainActivity.this, message);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                dialog.dismiss();
+                volleyError.printStackTrace();
+                AppCfg.showToast(MainActivity.this, "Network error!");
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", AppCfg.API_KEY);
+                return headers;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AppCfg.CURRENT_USER = null;
+        //AppCfg.CURRENT_USER = null;
     }
 
     @Override

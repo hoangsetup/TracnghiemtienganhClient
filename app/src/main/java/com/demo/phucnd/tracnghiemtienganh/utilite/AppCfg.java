@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.demo.phucnd.tracnghiemtienganh.model.Loaicauhoi;
 import com.demo.phucnd.tracnghiemtienganh.model.User;
 
 import java.io.BufferedReader;
@@ -16,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,10 +32,18 @@ public class AppCfg {
     public static String API_LOGIN = API_SERVER + "login.php";
     public static String API_REGISTER = API_SERVER + "register.php";
     public static String API_UPLOAD = API_SERVER + "upload.php";
+    public static String API_GETLOAICAUHOI = API_SERVER + "getloaicauhoi.php";
+    public static String API_CAUHOI = API_SERVER + "getcauhoi.php";
+    public static String API_UPKETQUA = API_SERVER + "upketqua.php";
+
+    public static int TIMEINMILISECOND = 90 * 1000;
+
 
     public static String API_LINK_IMG = SERVER + "Tracnghiemtienganh/images/";
 
     public static User CURRENT_USER = null;
+
+    public static Vector<Loaicauhoi> LOAICAUHOI = new Vector<>();
 
     public static void showToast(Context context, String msg) {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();

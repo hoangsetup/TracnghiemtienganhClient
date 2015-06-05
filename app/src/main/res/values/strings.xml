@@ -10,4 +10,8 @@
     <string name="str_regbtn">Hoàn thành</string>
     <string name="str_sign_in_to_your_account">Chào mừng đến với Tiếng Anh Q</string>
     <string name="reg">Đăng ký tài khoản mới</string>
+    <string name="stringtemp">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+consequat.</string>
 </resources>
