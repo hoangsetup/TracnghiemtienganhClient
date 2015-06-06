@@ -3,10 +3,12 @@ package com.demo.phucnd.tracnghiemtienganh;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -40,6 +42,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
         getWidgetControl();
         registryEvent();
+        getSavedData();
     }
 
     private void getWidgetControl() {
@@ -116,7 +119,9 @@ public class LoginActivity extends Activity {
                         user.setNgaysinh(obj.getString("sNgaysinh"));
                         user.setSdt(obj.getString("sSdt"));
                         user.setImage(obj.getString("image"));
+                        saveData();
                         AppCfg.CURRENT_USER = user;
+                        AppCfg.PASSWORD = editText_pass.getText().toString();
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                     }else {
@@ -141,5 +146,30 @@ public class LoginActivity extends Activity {
             }
         };
         AppController.getInstance().addToRequestQueue(request);
+    }
+
+    public void saveData(){
+
+        CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox_keeplogin);
+        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        if(checkBox.isChecked()){
+            editor.putString("username", editText_user.getText().toString());
+            editor.putString("password", editText_pass.getText().toString());
+            editor.putBoolean("checked", true);
+        }else{
+            editor.putString("username", "");
+            editor.putString("password", "");
+            editor.putBoolean("checked", false);
+        }
+        editor.apply();
+
+    }
+    public void getSavedData(){
+        CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox_keeplogin);
+        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
+        editText_user.setText(preferences.getString("username", ""));
+        editText_pass.setText(preferences.getString("password", ""));
+        checkBox.setChecked(preferences.getBoolean("checked", false));
     }
 }

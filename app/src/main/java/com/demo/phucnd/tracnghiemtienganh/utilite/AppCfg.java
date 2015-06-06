@@ -35,6 +35,9 @@ public class AppCfg {
     public static String API_GETLOAICAUHOI = API_SERVER + "getloaicauhoi.php";
     public static String API_CAUHOI = API_SERVER + "getcauhoi.php";
     public static String API_UPKETQUA = API_SERVER + "upketqua.php";
+    public static String API_GETKETQUA = API_SERVER + "getketqua.php";
+
+    public static String PASSWORD = "";
 
     public static int TIMEINMILISECOND = 90 * 1000;
 
@@ -44,6 +47,8 @@ public class AppCfg {
     public static User CURRENT_USER = null;
 
     public static Vector<Loaicauhoi> LOAICAUHOI = new Vector<>();
+    public static Vector<String> KETQUA = new Vector<>();
+
 
     public static void showToast(Context context, String msg) {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
@@ -234,5 +239,4 @@ public class AppCfg {
 
         } // End else block
     }
-
 }

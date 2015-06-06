@@ -1,5 +1,7 @@
 package com.demo.phucnd.tracnghiemtienganh.utilite;
 
+import android.util.Log;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
@@ -50,6 +52,7 @@ public class MyPostRequest extends Request<JSONObject> {
 			// String jsonString = new String(response.data,
 			// HttpHeaderParser.parseCharset(response.headers));
 			String jsonString = new String(response.data, "UTF-8");
+			Log.e(MyPostRequest.class.getSimpleName(), jsonString);
 			return Response.success(new JSONObject(jsonString),
 					HttpHeaderParser.parseCacheHeaders(response));
 		} catch (UnsupportedEncodingException e) {

@@ -6,9 +6,11 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -45,7 +47,14 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
     private ProgressDialog dialog;
 
     private int ketqua = 0;
-    private String[] bailam = new String[20];
+    private String[] bailam = new String[total];
+    private Map<Integer, Integer> mapBaithi = new HashMap<>();
+
+    {
+        for (int i = 0; i < total; i++) {
+            mapBaithi.put(i, -1);
+        }
+    }
 
     private boolean isDone = false;
 
@@ -55,7 +64,7 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
         setContentView(R.layout.activity_testdoing);
 
         loaicauhoi = getIntent().getIntExtra("loaicauhoi", 0);
-
+        Log.e("Debug", loaicauhoi + "");
         findView();
         regEvent();
         setUpData();
@@ -63,13 +72,14 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
         countDownTimer = new CountDownTimer(AppCfg.TIMEINMILISECOND, 1000) {
             @Override
             public void onTick(long l) {
-                textView_time.setText("Time remaining: " + (l / 1000 - 1) + "s");
+                textView_time.setText("Time remaining: " + (l / 1000) + "s");
             }
 
             @Override
             public void onFinish() {
-                if(!isDone)
+                if (!isDone)
                     upKetqua();
+                textView_time.setText("Time up!");
                 isDone = true;
             }
         }.start();
@@ -91,29 +101,32 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
         radioButton_b = (RadioButton) findViewById(R.id.radioButton_b);
         radioButton_c = (RadioButton) findViewById(R.id.radioButton_c);
         radioButton_d = (RadioButton) findViewById(R.id.radioButton_d);
+
     }
 
     private void regEvent() {
         imageButton_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (page + 1 < total)
+                if (page + 1 < total) {
                     page++;
-                setUpFromPage(page);
+                    setUpFromPage(page);
+                }
             }
         });
         imageButton_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (page > 0)
+                if (page > 0) {
                     page--;
-                setUpFromPage(page);
+                    setUpFromPage(page);
+                }
             }
         });
         imageButton_done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isDone){
+                if (!isDone) {
                     upKetqua();
                 }
                 isDone = true;
@@ -143,11 +156,13 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
             @Override
             public void onResponse(JSONObject jsonObject) {
                 dialog.dismiss();
+                Log.e("DEBUG", jsonObject.toString() + "--" + loaicauhoi);
                 try {
                     int success = jsonObject.getInt("success");
                     String message = jsonObject.getString("message");
                     if (success == 1) {
                         JSONArray arrayCauhoi = jsonObject.getJSONArray("cauhoi");
+                        listCauhoi.clear();
                         for (int i = 0; i < arrayCauhoi.length(); i++) {
                             JSONObject obj = arrayCauhoi.getJSONObject(i);
                             Cauhoi cauhoi = new Cauhoi();
@@ -188,14 +203,22 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
         AppController.getInstance().addToRequestQueue(request);
     }
 
-    public void upKetqua(){
+    public void upKetqua() {
         dialog.show();
+        for (int i = 0; i < total; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (listCauhoi.get(i).getDapans().get(j).isTrue() == 1 && mapBaithi.get(i) == j)
+                    ketqua++;
+            }
+        }
+
         Map<String, String> params = new HashMap<>();
         params.put("ketqua", ketqua + "/" + total);
-        params.put("userid", AppCfg.CURRENT_USER.getId()+"");
+        params.put("userid", AppCfg.CURRENT_USER.getId() + "");
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         params.put("thoigian", dateFormat.format(Calendar.getInstance().getTime()));
-        MyPostRequest request = new MyPostRequest(Request.Method.POST, "", params, new Response.Listener<JSONObject>() {
+        Log.e("DEBUG", params.toString());
+        MyPostRequest request = new MyPostRequest(Request.Method.POST, AppCfg.API_UPKETQUA, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 dialog.dismiss();
@@ -215,8 +238,13 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
                 AppCfg.showToast(TestDoingActivity.this, "Network error!");
                 volleyError.printStackTrace();
             }
-        }){
-
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", AppCfg.API_KEY);
+                return headers;
+            }
         };
         AppController.getInstance().addToRequestQueue(request);
     }
@@ -233,24 +261,28 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
         radioButton_c.setText("C. " + cauhoi.getDapans().get(2).getNoidung());
         radioButton_d.setText("D. " + cauhoi.getDapans().get(3).getNoidung());
 
-        radioButton_a.setChecked(false);
-        radioButton_b.setChecked(false);
-        radioButton_c.setChecked(false);
-        radioButton_d.setChecked(false);
+
+        radioButton_a.setTextColor(Color.parseColor("#000000"));
+        radioButton_b.setTextColor(Color.parseColor("#000000"));
+        radioButton_c.setTextColor(Color.parseColor("#000000"));
+        radioButton_d.setTextColor(Color.parseColor("#000000"));
+
+        if (!TextUtils.isEmpty(bailam[page])) {
+            Log.e("DEBUG", bailam[page] + "-" + page);
+            if (bailam[page].equalsIgnoreCase("A"))
+                radioButton_a.setChecked(true);
+            if (bailam[page].equalsIgnoreCase("B"))
+                radioButton_b.setChecked(true);
+            if (bailam[page].equalsIgnoreCase("C"))
+                radioButton_c.setChecked(true);
+            if (bailam[page].equalsIgnoreCase("D"))
+                radioButton_d.setChecked(true);
+        } else {
+            RadioGroup group = (RadioGroup)findViewById(R.id.radioGroup);
+            group.clearCheck();
+        }
 
         if (isDone) {
-            if(!TextUtils.isEmpty(bailam[page])) {
-                if (bailam[page].equalsIgnoreCase("A"))
-                    radioButton_a.setChecked(true);
-                if (bailam[page].equalsIgnoreCase("B"))
-                    radioButton_b.setChecked(true);
-                if (bailam[page].equalsIgnoreCase("C"))
-                    radioButton_c.setChecked(true);
-                if (bailam[page].equalsIgnoreCase("D"))
-                    radioButton_d.setChecked(true);
-            }
-
-
             if (listCauhoi.get(page).getDapans().get(0).isTrue() == 1)
                 radioButton_a.setTextColor(Color.parseColor("#FF0000"));
             if (listCauhoi.get(page).getDapans().get(1).isTrue() == 1)
@@ -264,39 +296,33 @@ public class TestDoingActivity extends Activity implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
+        //((RadioButton)view).setChecked(true);
         switch (view.getId()) {
             case R.id.radioButton_a:
-                if (listCauhoi.get(page).getDapans().get(0).isTrue() == 1){
-                    if(TextUtils.isEmpty(bailam[page]) || !bailam[page].equalsIgnoreCase("A")){
-                        ketqua++;
-                    }
-                }
+                mapBaithi.put(page, 0);
                 bailam[page] = "A";
                 break;
             case R.id.radioButton_b:
-                if (listCauhoi.get(page).getDapans().get(1).isTrue() == 1){
-                    if(TextUtils.isEmpty(bailam[page]) || !bailam[page].equalsIgnoreCase("B")){
-                        ketqua++;
-                    }
-                }
+                mapBaithi.put(page, 1);
                 bailam[page] = "B";
                 break;
             case R.id.radioButton_c:
-                if (listCauhoi.get(page).getDapans().get(2).isTrue() == 1){
-                    if(TextUtils.isEmpty(bailam[page]) || !bailam[page].equalsIgnoreCase("C")){
-                        ketqua++;
-                    }
-                }
+                mapBaithi.put(page, 2);
                 bailam[page] = "C";
+                break;
             case R.id.radioButton_d:
-                if (listCauhoi.get(page).getDapans().get(3).isTrue() == 1){
-                    if(TextUtils.isEmpty(bailam[page]) || !bailam[page].equalsIgnoreCase("D")){
-                        ketqua++;
-                    }
-                }
+                mapBaithi.put(page, 3);
                 bailam[page] = "D";
+                break;
             default:
                 break;
         }
+        //setUpFromPage(page);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        countDownTimer.cancel();
     }
 }

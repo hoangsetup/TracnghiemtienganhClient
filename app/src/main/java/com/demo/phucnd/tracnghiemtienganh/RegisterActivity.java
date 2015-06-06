@@ -113,7 +113,7 @@ public class RegisterActivity extends Activity {
             @Override
             public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
                 Bitmap bitmap = imageContainer.getBitmap();
-                if(bitmap != null)
+                if (bitmap != null)
                     imageView_avatar.setImageBitmap(imageContainer.getBitmap());
             }
 
@@ -269,7 +269,7 @@ public class RegisterActivity extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             dialog.dismiss();
-            finish();
+            reLogin(editText_user.getText().toString(), editText_pass.getText().toString());
         }
     }
 
@@ -303,5 +303,55 @@ public class RegisterActivity extends Activity {
                 ignored.printStackTrace();
             }
         }
+    }
+
+    private void reLogin(String user, final String pass) {
+        final ProgressDialog dialog = ProgressDialog.show(this, "Thông báo", "Đang đăng nhập...", true, false);
+        Map<String, String> params = new HashMap<>();
+        params.put("username", user);
+        params.put("password", pass);
+        MyPostRequest request = new MyPostRequest(Request.Method.POST,AppCfg.API_LOGIN, params, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                dialog.dismiss();
+                try {
+                    int success = jsonObject.getInt("success");
+                    String message = jsonObject.getString("message");
+                    if(success == 1){
+                        JSONObject obj = jsonObject.getJSONArray("user").getJSONObject(0);
+                        User user  = new User();
+                        user.setUser(obj.getString("sUser"));
+                        user.setEmail(obj.getString("sEmail"));
+                        user.setId(obj.getInt("PK_iUserId"));
+                        user.setName(obj.getString("sName"));
+                        user.setNgaysinh(obj.getString("sNgaysinh"));
+                        user.setSdt(obj.getString("sSdt"));
+                        user.setImage(obj.getString("image"));
+                        AppCfg.CURRENT_USER = user;
+                        AppCfg.PASSWORD = pass;
+                        finish();
+                    }else {
+                        AppCfg.showToast(RegisterActivity.this, message);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                dialog.dismiss();
+                AppCfg.showToast(RegisterActivity.this, "Network error!");
+                finish();
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", AppCfg.API_KEY);
+                return headers;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request);
     }
 }

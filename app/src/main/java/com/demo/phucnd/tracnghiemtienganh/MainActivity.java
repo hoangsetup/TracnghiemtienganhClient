@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -31,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +43,7 @@ public class MainActivity extends Activity {
     ArrayList<Group> expListItems = new ArrayList<>();
 
     ExpandListAdapter expAdapter = null;
+    ExpandableListView expandList;
     ProgressDialog dialog;
 
 
@@ -48,11 +51,13 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setUpActivity();
+
     }
 
     private void setUpActivity(){
-        ExpandableListView expandList = (ExpandableListView) findViewById(R.id.expandableListView_info);
+        if(AppCfg.CURRENT_USER == null)
+            return;
+        expandList = (ExpandableListView) findViewById(R.id.expandableListView_info);
         expListItems = SetStandardGroups();
         expAdapter = new ExpandListAdapter(MainActivity.this, expListItems);
         expandList.setAdapter(expAdapter);
@@ -112,7 +117,8 @@ public class MainActivity extends Activity {
             }
         });
 
-        getLoaicauhoi();
+        //getLoaicauhoi();
+        getKetqua();
     }
 
     public ArrayList<Group> SetStandardGroups() {
@@ -142,7 +148,13 @@ public class MainActivity extends Activity {
         group = new Group();
         group.setName("Hồ sơ kết quả thi");
         ArrayList<Child> childrens3 = new ArrayList<>();
-        childrens3.add(new Child("Hoàng Rapper", R.drawable.ic_wifi));
+        for(String s : AppCfg.KETQUA){
+            String kq = s.split("\t\t")[1];
+            int d = Integer.parseInt(kq.split("/")[0]);
+            int t = Integer.parseInt(kq.split("/")[1]);
+            int ico = (d >= (t/2))?R.drawable.ic_pass:R.drawable.ic_fail;
+            childrens3.add(new Child(s, ico));
+        }
         group.setItems(childrens3);
         list.add(group);
 
@@ -150,7 +162,7 @@ public class MainActivity extends Activity {
     }
 
     public void getLoaicauhoi(){
-        dialog = ProgressDialog.show(this, "Thông báo", "Đang tải...", true, true);
+        //dialog = ProgressDialog.show(this, "Thông báo", "Đang tải...", true, true);
         MyPostRequest request = new MyPostRequest(Request.Method.POST, AppCfg.API_GETLOAICAUHOI, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -160,6 +172,7 @@ public class MainActivity extends Activity {
                     String message = jsonObject.getString("message");
                     if(success == 1){
                         JSONArray array = jsonObject.getJSONArray("loaicauhoi");
+                        AppCfg.LOAICAUHOI.clear();
                         for (int i = 0; i < jsonObject.length(); i++){
                             JSONObject object = array.getJSONObject(i);
                             Loaicauhoi loaicauhoi = new Loaicauhoi();
@@ -195,10 +208,66 @@ public class MainActivity extends Activity {
         AppController.getInstance().addToRequestQueue(request);
     }
 
+    public void getKetqua(){
+        dialog = ProgressDialog.show(this, "Thông báo", "Đang tải...", true, true);
+        Map<String, String> params = new HashMap<>();
+        params.put("userid", AppCfg.CURRENT_USER.getId()+"");
+        MyPostRequest request = new MyPostRequest(Request.Method.POST, AppCfg.API_GETKETQUA, params, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject jsonObject) {
+                //dialog.dismiss();
+                try {
+                    int success = jsonObject.getInt("success");
+                    String message = jsonObject.getString("message");
+                    if(success == 1){
+                        JSONArray array = jsonObject.getJSONArray("ketqua");
+                        AppCfg.KETQUA.clear();
+                        Log.e("DEBUG", array.length()+"");
+                        for (int i = 0; i < array.length(); i++){
+                            JSONObject object = array.getJSONObject(i);
+                            String ketqua = object.getString("thoigian")+"\t\t"+object.getString("ketqua");
+                            AppCfg.KETQUA.add(ketqua);
+                            Log.e("DEBUG", ketqua + "--"+ AppCfg.KETQUA.size());
+                        }
+                        Collections.reverse(AppCfg.KETQUA);
+                        getLoaicauhoi();
+                        expAdapter.notifyDataSetChanged();
+                    }else{
+                        AppCfg.showToast(MainActivity.this, message);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                //dialog.dismiss();
+                volleyError.printStackTrace();
+                AppCfg.showToast(MainActivity.this, "Network error!");
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", AppCfg.API_KEY);
+                return headers;
+            }
+        };
+        AppController.getInstance().addToRequestQueue(request);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         //AppCfg.CURRENT_USER = null;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(MainActivity.class.getSimpleName(), "onResume");
+        setUpActivity();
     }
 
     @Override
